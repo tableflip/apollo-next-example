@@ -28,7 +28,7 @@ export default class Player extends React.Component {
   }
 
   renderTeam = (team) => {
-    return <div key={team.id}><a href='#' onClick={this.changeTeamFactory(team.id)}>{team.name}</a></div>
+    return <div key={team._id}><a href='#' onClick={this.changeTeamFactory(team._id)}>{team.name}</a></div>
   }
 
   render () {
@@ -47,7 +47,7 @@ export default class Player extends React.Component {
           {player.firstName} {player.lastName}
         </Heading>
         <Text>
-          <Link href={`/team?id=${player.team.id}`}>{player.team && player.team.name}</Link>
+          <Link href={`/team?_id=${player.team._id}`}>{player.team && player.team.name}</Link>
           <a href='#' onClick={this.onChangingTeamToggle}>Change Team</a>
           {this.state.changingTeam ? this.renderChangeTeam() : null}
         </Text>

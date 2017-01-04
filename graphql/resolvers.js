@@ -1,18 +1,19 @@
 const authFactory = require('../auth')
+const getRaw = require('../lib/get-raw')
 
 module.exports = (db) => {
   const auth = authFactory(db)
 
   return {
     Query: {
-      players (_, { id }) {
-        if (id) return db.get('players').filter({ id }).value()
-        return db.get('players').value()
+      players (_, { _id }) {
+        if (_id) return db.collections.players.find({ _id }).exec().then(getRaw)
+        return db.collections.players.find().exec().then(getRaw)
       },
 
-      teams (_, { id }) {
-        if (id) return db.get('teams').filter({ id }).value()
-        return db.get('teams').value()
+      teams (_, { _id }) {
+        if (_id) return db.collections.teams.find({ _id }).exec().then(getRaw)
+        return db.collections.teams.find().exec().then(getRaw)
       },
 
       getUser (_, __, user) {
@@ -22,19 +23,27 @@ module.exports = (db) => {
 
     Mutation: {
       updatePlayer (_, data, ctx) {
-        const id = data.id
-        const player = db.get('players').find({ id }).value()
-        if (!player) throw new Error(`Cannot find player with id ${id}`)
-        db.get('players').find({ id }).assign(data).value()
-        return player
+        const _id = data._id
+        db.collections.players.findOne({ _id }).exec()
+          .then((player) => {
+            if (!player) throw new Error(`Cannot find player with _id ${_id}`)
+            Object.keys(data).forEach((key) => {
+              player.set(key, data[key])
+            })
+            return player.save().then(() => player.rawData)
+          })
       },
 
       updateTeam (_, data, ctx) {
-        const id = data.id
-        const team = db.get('teams').find({ id }).value()
-        if (!team) throw new Error(`Cannot find team with id ${id}`)
-        db.get('teams').find({ id }).assign(data).value()
-        return team
+        const _id = data._id
+        db.collections.teams.findOne({ _id }).exec()
+          .then((team) => {
+            if (!team) throw new Error(`Cannot find team with _id ${_id}`)
+            Object.keys(data).forEach((key) => {
+              team.set(key, data[key])
+            })
+            return team.save().then(() => team.rawData)
+          })
       },
 
       requestToken (_, data, ctx) {
@@ -51,13 +60,13 @@ module.exports = (db) => {
 
     Team: {
       players (team) {
-        return db.get('players').filter((player) => player.team === team.id).value()
+        return db.collections.players.find({ team: team._id }).exec().then(getRaw)
       }
     },
 
     Player: {
       team (player) {
-        return db.get('teams').find((team) => team.id === player.team).value()
+        return db.collections.teams.findOne({ _id: player.team }).exec().then(getRaw)
       }
     }
   }

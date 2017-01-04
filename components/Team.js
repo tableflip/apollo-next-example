@@ -20,8 +20,8 @@ export default class Team extends React.Component {
         <Text>
           {team.players ? team.players.map((player) => {
             return (
-              <div key={player.id} className='mb2'>
-                <Link href={`/player?id=${player.id}`}><span>{player.firstName} {player.lastName}</span></Link>
+              <div key={player._id} className='mb2'>
+                <Link href={`/player?_id=${encodeURIComponent(player._id)}`}><span>{player.firstName} {player.lastName}</span></Link>
               </div>
             )
           }) : null}

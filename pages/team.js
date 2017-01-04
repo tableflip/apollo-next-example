@@ -6,11 +6,11 @@ import wrapper from '../components/wrapper'
 import Team from '../components/Team'
 
 const gqlQuery = gql`
-  query Teams($id: Int!) {
-    teams(id: $id) {
+  query Teams($_id: String!) {
+    teams(_id: $_id) {
       name
       players {
-        id
+        _id
         firstName
         lastName
       }
@@ -22,7 +22,7 @@ class TeamPage extends React.Component {
   static getInitialProps ({ query, client }) {
     return client.query({
       query: gqlQuery,
-      variables: { id: query.id || 1 }
+      variables: { _id: String(query._id) || '1' }
     })
   }
 

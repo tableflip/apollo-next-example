@@ -1,6 +1,6 @@
 module.exports = `
   type Player {
-    id: Int!,
+    _id: String!,
     team: Team,
     firstName: String
     lastName: String
@@ -8,32 +8,32 @@ module.exports = `
   }
 
   type Team {
-    id: Int!
+    _id: String!
     name: String
     players: [Player]
   }
 
   type User {
-    id: Int!
+    _id: String!
     username: String
   }
 
   type Query {
-    players(id: Int): [Player]
-    teams(id: Int): [Team]
+    players(_id: String): [Player]
+    teams(_id: String): [Team]
     getUser: User
   }
 
   type Mutation {
     updatePlayer (
-      id: Int!
+      _id: String!
       firstName: String
       lastName: String
-      team: Int
+      team: String
     ): Player
 
     updateTeam (
-      id: Int!
+      _id: String!
       name: String
     ): Team
 

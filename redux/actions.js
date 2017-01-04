@@ -9,7 +9,7 @@ const loginMutation = gql`
 const getUserQuery = gql`
   query getUser {
     getUser {
-      id,
+      _id,
       username
     }
   }

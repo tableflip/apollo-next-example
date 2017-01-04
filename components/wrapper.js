@@ -1,3 +1,4 @@
+import fetch from 'isomorphic-fetch'
 import React from 'react'
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
 import Head from 'next/head'

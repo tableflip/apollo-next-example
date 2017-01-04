@@ -30,5 +30,5 @@ Promise.all(assets.map((asset) => {
   const dest = `./static/${asset.module}/`
   return cpy(srcPaths, dest)
 }))
-  .then(() => cpy('./styles.css', './static/styles.css'))
+  .then(() => cpy(['./styles.css'], './static'))
   .then(() => console.log(`\nDone`))

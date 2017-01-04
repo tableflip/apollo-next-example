@@ -7,14 +7,14 @@ import wrapper from '../components/wrapper'
 import Player from '../components/Player'
 
 const gqlGetPlayer = gql`
-  query Players($id: Int!) {
-    players(id: $id) {
-      id
+  query Players($_id: String!) {
+    players(_id: $_id) {
+      _id
       firstName
       lastName
       avatar
       team {
-        id
+        _id
         name
       }
     }
@@ -24,20 +24,20 @@ const gqlGetPlayer = gql`
 const gqlGetTeams = gql`
   query Teams {
     teams {
-      id
+      _id
       name
     }
   }
 `
 
 const gqlSetTeam = gql`
-  mutation updatePlayer ($id: Int!, $team: Int) {
-    updatePlayer(id: $id, team: $team) {
+  mutation updatePlayer ($_id: String!, $team: String) {
+    updatePlayer(_id: $_id, team: $team) {
       firstName
       lastName
       avatar
       team {
-        id
+        _id
         name
       }
     }
@@ -49,12 +49,12 @@ class PlayerPage extends React.Component {
     return Promise.all([
       client.query({
         query: gqlGetPlayer,
-        variables: { id: query.id || 1 }
+        variables: { _id: query._id || 1 }
       }).then((res) => res.data.players[0]),
       client.query({
         query: gqlGetTeams
       }).then((res) => res.data.teams)
-    ]).then((res) => ({ player: res[0], teams: res[1] }))
+    ]).then((arr) => ({ player: arr[0], teams: arr[1] }))
   }
 
   state = {
@@ -65,7 +65,7 @@ class PlayerPage extends React.Component {
     return this.props.client.mutate({
       mutation: gqlSetTeam,
       variables: {
-        id: this.props.player.id,
+        _id: this.props.player._id,
         team: teamId
       }
     })
