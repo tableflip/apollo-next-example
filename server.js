@@ -2,7 +2,7 @@ const hapi = require('hapi')
 const { graphqlHapi, graphiqlHapi } = require('graphql-server-hapi')
 const config = require('config')
 
-require('./db2')
+require('./db')
   .then((db) => {
     const schema = require('./graphql')(db)
     const auth = require('./auth')(db)

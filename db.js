@@ -1,61 +1,113 @@
-const low = require('lowdb')
-const bcrypt = require('bcrypt')
+const RxDB = require('rxdb')
 const faker = require('faker')
-const JWT = require('jsonwebtoken')
-const moment = require('moment')
-const config = require('config')
-const db = low('_db.json', { storage: require('lowdb/lib/file-sync') })
+const getRaw = require('./lib/get-raw')
+const fs = require('fs-extra')
 
-db.defaults({ players: [], teams: [] })
-  .value()
+function sample (arr) {
+  const len = arr.length
+  return arr[Math.floor(Math.random() * len)]
+}
 
-if (!db.get('teams').size().value()) {
-  db.set('teams', [])
-  Array(5).fill(0).forEach((_, i) => {
-    const team = {
-      id: i,
-      name: `${faker.address.city()} ${faker.name.jobDescriptor()}`
+const teamSchema = {
+  title: 'team schema',
+  description: 'describes a team',
+  type: 'object',
+  properties: {
+    name: {
+      type: 'string'
     }
-    db.get('teams').push(team).value()
-  })
+  },
+  required: ['name']
 }
 
-if (!db.get('players').size().value()) {
-  const teams = db.get('teams').value()
-  db.set('players', [])
-  Array(50).fill(0).forEach((_, i) => {
-    const player = {
-      id: i,
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      avatar: faker.image.avatar(),
-      team: db._.sample(teams).id
+const playerSchema = {
+  title: 'player schema',
+  description: 'describes a player',
+  type: 'object',
+  properties: {
+    firstName: {
+      type: 'string'
+    },
+    lastName: {
+      type: 'string'
+    },
+    team: {
+      type: 'string'
+    },
+    avatar: {
+      type: 'string'
     }
-    db.get('players').push(player).value()
-  })
+  },
+  required: ['firstName', 'lastName']
 }
 
-if (!db.get('users').size().value()) {
-  const user = {
-    id: 1,
-    username: 'hello'
-  }
-  const jwt = {
-    token: JWT.sign(user, config.JWT_KEY),
-    expires: moment().add(1, 'weeks')
-  }
-  const password = 'hello'
-
-  db.set('users', [])
-  db.set('jwts', [])
-
-  bcrypt.hash(password, 10, (err, hash) => {
-    if (err) return console.error(err)
-    user.password = hash
-
-    db.get('users').push(user).value()
-    db.get('jwts').push(jwt)
-  })
+const userSchema = {
+  title: 'user schema',
+  desciption: 'describes a user',
+  type: 'object',
+  properties: {
+    username: {
+      type: 'string'
+    },
+    password: {
+      type: 'string'
+    }
+  },
+  required: ['username', 'password']
 }
 
-module.exports = db
+let db
+let teamList
+RxDB.plugin(require('pouchdb-adapter-leveldb'))
+
+fs.mkdirsSync('./.db')
+const dbPromise = RxDB.create('.db/nextTest', 'leveldb')
+  .then((_db) => {
+    db = _db
+    return db.collection('teams', teamSchema)
+  })
+  .then((teams) => {
+    return teams.find().exec().then((teamsArray) => {
+      if (teamsArray && teamsArray.length) return Promise.resolve(teamsArray)
+      const teamsInsert = Array(5).fill(0).map((_, i) => {
+        const team = {
+          name: `${faker.address.city()} ${faker.name.jobDescriptor()}`
+        }
+        return teams.insert(team)
+      })
+      return Promise.all(teamsInsert)
+    })
+  })
+  .then((_teamList) => {
+    teamList = getRaw(_teamList)
+    return db.collection('players', playerSchema)
+  })
+  .then((players) => {
+    return players.find().exec().then((playersArray) => {
+      if (playersArray && playersArray.length) return Promise.resolve(playersArray)
+      const playersInsert = Array(50).fill(0).map((_, i) => {
+        return players.insert({
+          firstName: faker.name.firstName(),
+          lastName: faker.name.lastName(),
+          avatar: faker.image.avatar(),
+          team: sample(teamList)._id
+        })
+      })
+      return Promise.all(playersInsert)
+    })
+  })
+  .then(() => {
+    return db.collection('users', userSchema)
+  })
+  .then((users) => {
+    return users.findOne().exec().then((user) => {
+      if (user) return Promise.resolve()
+      return users.insert({
+        username: 'richsilv',
+        password: 'password'
+      })
+    })
+  })
+  .then(() => db)
+
+module.exports = dbPromise
