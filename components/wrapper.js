@@ -3,18 +3,22 @@ import React from 'react'
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
 import Head from 'next/head'
 import ApolloClient, { createNetworkInterface } from 'apollo-client'
-import { ApolloProvider, withApollo } from 'react-apollo'
+import { ApolloProvider } from 'react-apollo'
+import { Client as WSClient } from 'subscriptions-transport-ws'
 import { middleware as reduxPack } from 'redux-pack'
 import jwtDecode from 'jwt-decode'
-import config from '../config'
+import config from '../config/public'
 import * as reducers from '../redux/reducers'
 import Layout from '../pages/layout'
 import { setUser } from '../redux/actions'
+import addGraphQLSubscriptions from './add-gql-subscriptions'
+
+Error.stackTraceLimit = 100
 
 const noop = (state = null) => state
 
 function initialise (props) {
-  let client, store
+  let client, wsClient, store
 
   const networkInterface = createNetworkInterface({ uri: config.apiUrl, credentials: 'same-origin' })
 
@@ -28,6 +32,7 @@ function initialise (props) {
       const decoded = jwtDecode(jwt)
       if (!decoded || !decoded.exp || decoded.exp < Date.now() / 1000) {
         window.localStorage.removeItem('jwt')
+        window.localStorage.removeItem('user')
         return next()
       }
 
@@ -40,9 +45,15 @@ function initialise (props) {
   }])
 
   if (typeof window !== 'undefined') {
+    if (!window.wsClient) {
+      window.wsClient = new WSClient(config.wsUrl)
+    }
+    wsClient = window.wsClient
+    const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(networkInterface, wsClient)
+
     if (!window.client) {
       window.client = new ApolloClient({
-        networkInterface,
+        networkInterface: networkInterfaceWithSubscriptions,
         initialState: window.__APOLLO_STATE__
       })
     }
@@ -54,12 +65,11 @@ function initialise (props) {
           Object.assign(
             reducers,
             {
-              client: noop,
               apollo: client.reducer()
             }
           )
         ),
-        { client }, // initial state
+        {}, // initial state
         compose(
           applyMiddleware(reduxPack),
           window.devToolsExtension ? window.devToolsExtension() : f => f
@@ -85,10 +95,11 @@ function initialise (props) {
     )
   }
 
+  client.initStore()
   return { client, store }
 }
 
-export default (Component) => {
+export default (Component, injector) => {
   const { client, store } = initialise()
 
   return class Extended extends Component {
@@ -109,15 +120,15 @@ export default (Component) => {
     }
 
     render () {
-      const WrappedComponent = withApollo(Component)
+      const WrappedComponent = injector ? injector(Component) : Component
       return (
         <ApolloProvider store={this.store} client={this.client}>
           <div>
             <Head>
               <meta name='viewport' content='width=device-width, initial-scale=1' />
-              <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet' />
               <link rel='stylesheet' type='text/css' href='/static/styles.css' />
-              <link rel='stylesheet' type='text/css' href='/static/basscss/basscss.min.css' />
+              <link rel='stylesheet' type='text/css' href='/static/tachyons/tachyons.min.css' />
+              <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet' />
             </Head>
             <Layout>
               <WrappedComponent {...this.props} />

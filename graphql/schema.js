@@ -41,10 +41,20 @@ module.exports = `
       username: String!
       password: String!
     ): String
+
+    dumpCollection (
+      collection: String!
+    ): Boolean
+  }
+
+  type Subscription {
+    playerUpdated(_id: String!): Player
+    teamUpdated(_id: String!): Team
   }
 
   schema {
     query: Query
     mutation: Mutation
+    subscription: Subscription
   }
 `

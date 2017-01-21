@@ -15,8 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "animate.css": "^3.5.2",
-    "apollo-client": "^0.5.0",
-    "basscss": "^8.0.3",
+    "apollo-client": "^0.6.0",
     "bcrypt": "^0.8.7",
     "config": "^1.24.0",
     "cpy": "^4.0.1",
@@ -27,7 +26,8 @@
     "good-console": "^6.2.0",
     "graphql": "^0.7.2",
     "graphql-server-hapi": "^0.4.3",
-    "graphql-tag": "^0.1.16",
+    "graphql-subscriptions": "^0.2.2",
+    "graphql-tag": "^0.1.17",
     "graphql-tools": "^0.8.0",
     "hapi": "^15.2.0",
     "hapi-auth-basic": "^4.2.0",
@@ -39,18 +39,25 @@
     "lowdb": "^0.14.0",
     "memdown": "^1.2.4",
     "moment": "^2.17.0",
-    "next": "=2.0.0-beta.5",
+    "mongodown": "^1.1.0",
+    "next": "=2.0.0-beta.17",
     "nodemon": "^1.11.0",
     "npm-run-all": "^3.1.1",
+    "pouchdb-adapter-fs": "^2.0.5",
     "pouchdb-adapter-idb": "^6.1.0",
     "pouchdb-adapter-leveldb": "^6.1.0",
-    "react-apollo": "^0.5.16",
+    "react-apollo": "^0.8.1",
     "react-redux": "^5.0.1",
     "react-toastr": "^2.8.2",
     "realm": "^0.15.0",
     "rebass": "^0.3.3",
     "redux-pack": "^0.1.4",
     "rxdb": "^1.5.7",
+    "subscriptions-transport-ws": "^0.3.1",
+    "tachyons": "^4.6.1",
     "toastr": "^2.1.2"
+  },
+  "devDependencies": {
+    "sinon": "^1.17.7"
   }
 }

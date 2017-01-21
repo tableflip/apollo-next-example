@@ -1,7 +1,6 @@
 import React from 'react'
-import { connect } from 'react-redux'
-import Link from 'next/link'
 import gql from 'graphql-tag'
+import { graphql, compose } from 'react-apollo'
 import 'isomorphic-fetch'
 import wrapper from '../components/wrapper'
 import Player from '../components/Player'
@@ -44,12 +43,27 @@ const gqlSetTeam = gql`
   }
 `
 
+const playerUpdatedSub = gql`
+  subscription playerUpdated($_id: String!) {
+    playerUpdated(_id: $_id) {
+      _id
+      firstName
+      lastName
+      avatar
+      team {
+        _id
+        name
+      }
+    }
+  }
+`
+
 class PlayerPage extends React.Component {
   static getInitialProps ({ query, client }) {
     return Promise.all([
       client.query({
         query: gqlGetPlayer,
-        variables: { _id: query._id || 1 }
+        variables: { _id: query._id }
       }).then((res) => res.data.players[0]),
       client.query({
         query: gqlGetTeams
@@ -61,28 +75,42 @@ class PlayerPage extends React.Component {
     player: this.props.player
   }
 
+  componentDidMount () {
+    const { query } = this.props.url
+    this.props.data.subscribeToMore({
+      document: playerUpdatedSub,
+      variables: { _id: query._id },
+      updateQuery: (previousResult, { subscriptionData: { data: { playerUpdated } } }) => {
+        console.log(playerUpdated)
+        this.setState({ player: playerUpdated })
+        return Object.assign({}, previousResult, { players: [playerUpdated] })
+      },
+      onError: (err) => console.error('Subscription error', err)
+    })
+  }
+
   changeTeam = (teamId) => {
-    return this.props.client.mutate({
-      mutation: gqlSetTeam,
+    return this.props.mutate({
       variables: {
         _id: this.props.player._id,
         team: teamId
       }
     })
-      .then((res) => this.setState({ player: res.data.updatePlayer }))
   }
 
   render () {
     return (
-      <div>
+      <div className='flex flex-column items-stretch justify-center pv5'>
         <Player player={this.state.player} teams={this.props.teams} changeTeam={this.changeTeam} />
-        <Link href='/'><a>Home</a></Link>
+        <div className='bottom-0 bb b--primary-l2 b--dotted bw2 w5 self-center' style={{ maxWidth: '70%' }}></div>
       </div>
     )
   }
 }
 
-
-const mapStateToProps = ({ client }) => ({ client })
-
-export default wrapper(connect(mapStateToProps)(PlayerPage))
+export default wrapper(PlayerPage, compose(
+  graphql(gqlGetPlayer, {
+    options: ({ url: { query: { _id } } }) => ({ variables: { _id } })
+  }),
+  graphql(gqlSetTeam)
+))

@@ -1,8 +1,8 @@
 import { handle } from 'redux-pack'
-import { LOGIN, LOGOUT, GET_USER, SET_USER } from './actions'
+import { LOGIN, LOGOUT, GET_USER, SET_USER, DUMP_COLLECTION, POP_MESSAGE } from './actions'
 
 export function message (state = null, action) {
-  const { type, payload } = action
+  const { type, payload, message } = action
 
   switch (type) {
     case LOGIN:
@@ -22,6 +22,23 @@ export function message (state = null, action) {
           text: payload.message
         })
       })
+
+    case DUMP_COLLECTION:
+      return handle(state, action, {
+        success: () => ({
+          type: 'success',
+          title: 'Collection dumped',
+          text: 'Collection has been dumped'
+        }),
+        failure: () => ({
+          type: 'error',
+          title: 'Collection dump failure',
+          text: 'Could not dump collection'
+        })
+      })
+
+    case POP_MESSAGE:
+      return message
 
     default:
       return state

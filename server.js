@@ -1,10 +1,14 @@
 const hapi = require('hapi')
 const { graphqlHapi, graphiqlHapi } = require('graphql-server-hapi')
+const { SubscriptionServer } = require('subscriptions-transport-ws')
+const { subscriptionManagerFactory } = require('./graphql/subscriptions')
+const { createServer } = require('http')
 const config = require('config')
 
 require('./db')
   .then((db) => {
     const schema = require('./graphql')(db)
+    const subscriptionManager = subscriptionManagerFactory({ schema, db })
     const auth = require('./auth')(db)
 
     const server = new hapi.Server()
@@ -12,7 +16,7 @@ require('./db')
     server.connection({
       host: config.HOST,
       port: config.PORT,
-      routes: { cors: true }
+      routes: { cors: true, cache: false }
     })
 
     server.register({
@@ -58,6 +62,27 @@ require('./db')
     server.start((err) => {
       if (err) throw err
 
-      console.log(`Server running at ${config.HOST}:${config.PORT}`)
+      console.log(`Apollo Server running at ${config.HOST}:${config.PORT}`)
     })
+
+    // WebSocket server for subscriptions
+    const websocketServer = createServer((request, response) => {
+      response.writeHead(404)
+      response.end()
+    })
+
+    websocketServer.listen(config.WS_PORT, () => console.log(`Apollo Websocket Server running at ${config.HOST}:${config.WS_PORT}`))
+
+    websocketServer.subscriptionService = new SubscriptionServer({
+      subscriptionManager,
+      // the obSubscribe function is called for every new subscription
+      // and we use it to set the GraphQL context for this subscription.
+      onSubscribe: (msg, params) => {
+        return Object.assign({}, params, {
+          context: {
+            foo: 'bar'
+          }
+        })
+      }
+    }, websocketServer)
   })

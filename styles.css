@@ -1,3 +1,78 @@
 body {
   font-family: 'Poppins', sans-serif;
 }
+
+w45 {
+  width: 12rem;
+}
+h45 {
+  height: 12rem;
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px white inset;
+}
+
+:root {
+  --primary-d2: #344912;
+  --primary-d1: #4c631e;
+  --primary: #6e8632;
+  --primary-l1: #88a849;
+  --primary-l2: #9ab76c;
+  --accent: #625486;
+}
+
+.primary-d2 {
+  color: var(--primary-d2);
+}
+.bg-primary-d2 {
+  background-color: var(--primary-d2);
+}
+.b--primary-d2 {
+  border-color: var(--primary-d2);
+}
+.primary-d1 {
+  color: var(--primary-d1);
+}
+.bg-primary-d1 {
+  background-color: var(--primary-d1);
+}
+.b--primary-d1 {
+  border-color: var(--primary-d1);
+}
+.primary {
+  color: var(--primary);
+}
+.bg-primary {
+  background-color: var(--primary);
+}
+.b--primary {
+  border-color: var(--primary);
+}
+.primary-l1 {
+  color: var(--primary-l1);
+}
+.bg-primary-l1 {
+  background-color: var(--primary-l1);
+}
+.b--primary-l1 {
+  border-color: var(--primary-l1);
+}
+.primary-l2 {
+  color: var(--primary-l2);
+}
+.bg-primary-l2 {
+  background-color: var(--primary-l2);
+}
+.b--primary-l2 {
+  border-color: var(--primary-l2);
+}
+.accent {
+  color: var(--accent);
+}
+.bg-accent {
+  background-color: var(--accent);
+}
+.b--accent {
+  border-color: var(--accent);
+}

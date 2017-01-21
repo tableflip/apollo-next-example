@@ -31,7 +31,10 @@ module.exports = function (db) {
           request.user = getRaw(user)
           reply.continue()
         })
-        .catch(() => reply.continue())
+        .catch((err) => {
+          console.error(err)
+          reply.continue()
+        })
     })
   }
 

@@ -19,19 +19,24 @@ class Index extends React.Component {
     }).then((res) => ({ teams: res.data.teams }))
   }
 
-  renderTeam = (team) => {
+  renderTeam = (team, ind) => {
+    const border = ind ? 'bl-0 br-0 bb-0 ba' : 'bn'
     return (
-      <li key={team._id}>
-        <Link href={`/team?_id=${encodeURIComponent(team._id)}`}>{team.name}</Link>
+      <li key={team._id} className={`lh-copy pv4 ${border} b--dotted b--primary-l1 f3 ttu tracked-mega`}>
+        <Link href={`/team?_id=${encodeURIComponent(team._id)}`}>
+          <a className='link dim pointer no-underline dark-gray'>{team.name}</a>
+        </Link>
       </li>
     )
   }
 
   render () {
     return (
-      <ul>
-        {this.props.teams.map(this.renderTeam)}
-      </ul>
+      <div className='mt4 mb3'>
+        <ul className='list pt4 mw7 center'>
+          {this.props.teams.map(this.renderTeam)}
+        </ul>
+      </div>
     )
   }
 }

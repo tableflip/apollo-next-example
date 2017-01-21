@@ -1,5 +1,6 @@
 const authFactory = require('../auth')
 const getRaw = require('../lib/get-raw')
+const { pubsub } = require('./subscriptions')
 
 module.exports = (db) => {
   const auth = authFactory(db)
@@ -22,24 +23,27 @@ module.exports = (db) => {
     },
 
     Mutation: {
-      updatePlayer (_, data, ctx) {
+      updatePlayer (_, data, user) {
+        if (!user) throw new Error('Only a logged in user can update a player')
         const _id = data._id
-        db.collections.players.findOne({ _id }).exec()
+        return db.collections.players.findOne({ _id }).exec()
           .then((player) => {
             if (!player) throw new Error(`Cannot find player with _id ${_id}`)
             Object.keys(data).forEach((key) => {
+              if (key === '_id') return
               player.set(key, data[key])
             })
             return player.save().then(() => player.rawData)
           })
       },
 
-      updateTeam (_, data, ctx) {
+      updateTeam (_, data, user) {
         const _id = data._id
         db.collections.teams.findOne({ _id }).exec()
           .then((team) => {
             if (!team) throw new Error(`Cannot find team with _id ${_id}`)
             Object.keys(data).forEach((key) => {
+              if (key === '_id') return
               team.set(key, data[key])
             })
             return team.save().then(() => team.rawData)
@@ -55,6 +59,16 @@ module.exports = (db) => {
             resolve(auth.makeToken(user))
           })
         })
+      },
+
+      dumpCollection (_, { collection }, ctx) {
+        const dbCollection = db.collections[collection]
+        if (!dbCollection) return false
+        return dbCollection.dump()
+          .then((json) => {
+            console.dir(json)
+            return true
+          })
       }
     },
 
@@ -67,6 +81,15 @@ module.exports = (db) => {
     Player: {
       team (player) {
         return db.collections.teams.findOne({ _id: player.team }).exec().then(getRaw)
+      }
+    },
+
+    Subscription: {
+      playerUpdated ({ _id }) {
+        return db.collections.players.find({ _id }).exec().then(getRaw).then((players) => players[0])
+      },
+      teamUpdated ({ _id }) {
+        return db.collections.teams.find({ _id }).exec().then(getRaw).then((teams) => teams[0])
       }
     }
   }

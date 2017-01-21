@@ -6,6 +6,12 @@ const loginMutation = gql`
   }
 `
 
+const dumpCollectionMutation = gql`
+  mutation dumpCollection($collection: String!) {
+    dumpCollection(collection: $collection)
+  }
+`
+
 const getUserQuery = gql`
   query getUser {
     getUser {
@@ -43,6 +49,19 @@ export function logout () {
   }
 }
 
+export const DUMP_COLLECTION = 'DUMP_COLLECTION'
+export function dumpCollection (client, collection) {
+  return {
+    type: DUMP_COLLECTION,
+    promise: client.mutate({
+      mutation: dumpCollectionMutation,
+      variables: {
+        collection
+      }
+    })
+  }
+}
+
 export const GET_USER = 'GET_USER'
 export function getUser (client) {
   if (!window.localStorage.getItem('jwt')) return
@@ -67,5 +86,13 @@ export function setUser (user) {
   return {
     type: SET_USER,
     user
+  }
+}
+
+export const POP_MESSAGE = 'POP_MESSAGE'
+export function popMessage (message) {
+  return {
+    type: POP_MESSAGE,
+    message
   }
 }

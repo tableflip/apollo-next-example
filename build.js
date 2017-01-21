@@ -2,9 +2,9 @@ const cpy = require('cpy')
 
 const assets = [
   {
-    module: 'basscss',
+    module: 'tachyons',
     path: 'css',
-    filenames: 'basscss.min.css'
+    filenames: 'tachyons.min.css'
   },
   {
     module: 'toastr',
