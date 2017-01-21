@@ -81,7 +81,6 @@ class PlayerPage extends React.Component {
       document: playerUpdatedSub,
       variables: { _id: query._id },
       updateQuery: (previousResult, { subscriptionData: { data: { playerUpdated } } }) => {
-        console.log(playerUpdated)
         this.setState({ player: playerUpdated })
         return Object.assign({}, previousResult, { players: [playerUpdated] })
       },

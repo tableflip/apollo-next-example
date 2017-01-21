@@ -11,11 +11,9 @@ module.exports = function (db) {
           return cb(null, false)
         }
 
-        if (password !== user.get('password')) return cb(null, false)
-        cb(null, true, { _id: user.rawData._id, username: user.get('username') })
-        // bcrypt.compare(password, user.password, (err, isValid) => {
-        //   cb(err, isValid, { id: user.id, name: user.name })
-        // })
+        bcrypt.compare(password, user.get('password'), (err, isValid) => {
+          cb(err, isValid, { _id: user.rawData._id, username: user.get('username') })
+        })
       })
       .catch(() => cb(null, false))
   }

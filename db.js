@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt')
 const RxDB = require('rxdb')
 const faker = require('faker')
 const getRaw = require('./lib/get-raw')
@@ -69,7 +70,7 @@ const dbPromise = RxDB.create('.db/nextTest', 'leveldb')
   .then((teams) => {
     return teams.find().exec().then((teamsArray) => {
       if (teamsArray && teamsArray.length) return Promise.resolve(teamsArray)
-      const teamsInsert = Array(5).fill(0).map((_, i) => {
+      const teamsInsert = Array(10).fill(0).map((_, i) => {
         const team = {
           name: `${faker.address.city()} ${faker.name.jobDescriptor()}`
         }
@@ -85,7 +86,7 @@ const dbPromise = RxDB.create('.db/nextTest', 'leveldb')
   .then((players) => {
     return players.find().exec().then((playersArray) => {
       if (playersArray && playersArray.length) return Promise.resolve(playersArray)
-      const playersInsert = Array(50).fill(0).map((_, i) => {
+      const playersInsert = Array(120).fill(0).map((_, i) => {
         return players.insert({
           firstName: faker.name.firstName(),
           lastName: faker.name.lastName(),
@@ -102,10 +103,13 @@ const dbPromise = RxDB.create('.db/nextTest', 'leveldb')
   .then((users) => {
     return users.findOne().exec().then((user) => {
       if (user) return Promise.resolve()
-      return users.insert({
-        username: 'richsilv',
-        password: 'password'
-      })
+      return bcrypt.hash('password', 10)
+        .then((hash) => {
+          users.insert({
+            username: 'richsilv',
+            password: hash
+          })
+        })
     })
   })
   .then(() => db)
