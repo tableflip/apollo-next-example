@@ -55,15 +55,15 @@ class Layout extends React.Component {
   renderLogin = () => {
     return (
       <form onSubmit={this.onLogin} className='pa4'>
-        <div className='measure dib v-btm'>
+        <div className='measure dib v-btm mv1'>
           <label htmlFor='username' className='f6 b db mb2'>Username</label>
           <input type='text' name='username' placeholder='gary123' className='input-reset ba b--black-20 bg-white pa2 db w-100' onChange={this.onChangeFactory('username')} value={this.state.username} style={{ marginBottom: '-1px' }} />
         </div>
-        <div className='measure dib ml1 v-btm'>
+        <div className='measure dib ml1 v-btm mv1'>
           <label htmlFor='password' className='f6 b db mb2'>Password</label>
           <input type='password' name='password' placeholder='gary123' className='input-reset ba b--black-20 bg-white pa2 db w-100' onChange={this.onChangeFactory('password')} value={this.state.password} style={{ marginBottom: '-1px' }} />
         </div>
-        <button type='submit' className='f6 link dim br1 bn ph3 pv2 ml2 dib dark-gray bg-primary button-reset v-btm'>Login</button>
+        <button type='submit' className='f6 link dim br1 bn ph3 pv2 ml2 dib dark-gray bg-primary button-reset v-btm mv1'>Login</button>
       </form>
     )
   }
@@ -71,8 +71,8 @@ class Layout extends React.Component {
   renderLogout = () => {
     return (
       <div className='pa4'>
-        <a href='#' className='f6 link dim moon-gray v-mid' onClick={this.onLogout}>Logout</a>
-        <div className='dib ml4 f3 fw6 v-mid primary'>{this.props.user.username}</div>
+        <a href='#' className='f6 link dim moon-gray v-mid mv1' onClick={this.onLogout}>Logout</a>
+        <div className='dib ml4 f3 fw6 v-mid primary mv1'>{this.props.user.username}</div>
       </div>
     )
   }
@@ -90,8 +90,6 @@ class Layout extends React.Component {
         <div className='moon-gray bg-dark-gray flex flex-row justify-between items-end b--primary-d1 bb bw1'>
           {this.props.user ? this.renderLogout() : this.renderLogin()}
           <div className='pa4'>
-            <button className='f6 link dim br3 ph3 pv2 ml2 dib bg-transparent primary-l1 bw2 ba b--primary button-reset pointer' onClick={this.dumpPlayers}>Dump players</button>
-            <button className='f6 link dim br3 ph3 pv2 ml2 dib bg-transparent primary-l1 bw2 ba b--primary button-reset pointer' onClick={this.dumpTeams}>Dump teams</button>
             <Link href='/'><a className='link dim moon-gray ml5'>Home</a></Link>
           </div>
         </div>
