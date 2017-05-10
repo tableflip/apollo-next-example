@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Card, CardImage, Heading, Text } from 'rebass'
 import Link from 'next/link'
 import { popMessage } from '../redux/actions'
 

@@ -47,7 +47,6 @@
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.1",
     "react-toastr": "^2.8.2",
-    "rebass": "^0.3.4",
     "redux-pack": "^0.1.4",
     "rxdb": "^1.5.7",
     "subscriptions-transport-ws": "^0.3.1",
